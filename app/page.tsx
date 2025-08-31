@@ -1,6 +1,14 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useParams, usePathname, useSearchParams } from "next/navigation";
+import {
+  SUPPORTED_LOCALES,
+  CATEGORY_BY_LOCALE,
+  localeFromCategorySegment,
+  codeFromSlug,
+  type Locale,
+} from "@/lib/i18n-routes";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +36,23 @@ import {
 import { VirtualKeyboard } from "@/components/virtual-keyboard";
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "next-themes";
+// Minimal i18n for SEO-facing hero copy
+const heroTitle: Record<string, string> = {
+  en: "Free Virtual Keyboard Online",
+  ar: "لوحة مفاتيح افتراضية مجانية عبر الإنترنت",
+  fr: "Clavier virtuel gratuit en ligne",
+  ja: "無料バーチャルキーボード",
+  ru: "Бесплатная виртуальная клавиатура онлайн",
+  he: "מקלדת וירטואלית חינמית אונליין",
+};
+const heroDescription: Record<string, string> = {
+  en: "Type in any language with our free multilingual virtual keyboard. Supports Japanese keyboard, Russian keyboard, Hebrew keyboard, and Arabic keyboard. Translate English to Spanish, Russian to English, Greek to English with voice input and instant translation.",
+  ar: "اكتب بأي لغة باستخدام لوحة المفاتيح الافتراضية متعددة اللغات مجانًا. تدعم لوحة المفاتيح اليابانية والروسية والعبرية والعربية. ترجم من الإنجليزية إلى الإسبانية، ومن الروسية إلى الإنجليزية، ومن اليونانية إلى الإنجليزية مع الإدخال الصوتي والترجمة الفورية.",
+  fr: "Saisissez dans n'importe quelle langue avec notre clavier virtuel multilingue gratuit. Prend en charge les claviers japonais, russe, hébreu et arabe. Traduisez l'anglais vers l'espagnol, le russe vers l'anglais, le grec vers l'anglais avec saisie vocale et traduction instantanée.",
+  ja: "無料の多言語バーチャルキーボードで好きな言語を入力できます。日本語、ロシア語、ヘブライ語、アラビア語のキーボードに対応。音声入力と即時翻訳で英語↔スペイン語、ロシア語→英語、ギリシャ語→英語の翻訳も可能。",
+  ru: "Печатайте на любом языке с нашей бесплатной многоязычной виртуальной клавиатурой. Поддерживаются японская, русская, иврит и арабская раскладки. Переводите английский↔испанский, русский→английский, греческий→английский с голосовым вводом и мгновенным переводом.",
+  he: "הקלידו בכל שפה עם המקלדת הווירטואלית הרב־לשונית החינמית שלנו. תומכת במקלדות יפנית, רוסית, עברית וערבית. תרגמו מאנגלית לספרדית, מרוסית לאנגלית ומיוונית לאנגלית עם קלדנות קולית ותרגום מיידי.",
+};
 
 const languages = [
   {
@@ -196,7 +221,37 @@ const popularTranslations = [
 ];
 
 export default function MultilingualKeyboard() {
-  const [selectedLanguage, setSelectedLanguage] = useState("en");
+  const params = useParams();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // Determine site locale + initial keyboard from new descriptive URLs or legacy /:lang
+  let initialLocale: Locale = "en";
+  let initialKbd = "en";
+  if (pathname) {
+    const parts = pathname.split("/").filter(Boolean);
+    if (parts.length >= 2) {
+      const maybeLocale = localeFromCategorySegment(parts[0]);
+      if (maybeLocale) {
+        initialLocale = maybeLocale;
+        const code = codeFromSlug(maybeLocale, parts[1]);
+        if (code) initialKbd = code;
+      }
+    }
+  }
+  // Legacy /:lang fallback
+  const legacyLang = (typeof params?.lang === "string" ? params.lang : "").toLowerCase();
+  if (!pathname?.startsWith("/") || SUPPORTED_LOCALES.includes(legacyLang as any)) {
+    initialLocale = (legacyLang as Locale) || initialLocale;
+    if (legacyLang) initialKbd = legacyLang;
+  }
+
+  // Optional ?kbd=xx override
+  const qp = searchParams?.get("kbd");
+  if (qp) initialKbd = qp;
+
+  const [selectedLanguage, setSelectedLanguage] = useState(initialKbd);
+  const [pageLocale, setPageLocale] = useState<Locale>(initialLocale);
   const [text, setText] = useState("");
   const [translatedText, setTranslatedText] = useState("");
   const [targetLanguage, setTargetLanguage] = useState("es");
@@ -206,6 +261,15 @@ export default function MultilingualKeyboard() {
   const recognitionRef = useRef<any>(null);
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
+
+  useEffect(() => {
+    // Keep <html> language/dir accurate for SEO and a11y based on site locale
+    if (typeof document !== "undefined") {
+      document.documentElement.lang = pageLocale;
+      const rtlSite = ["ar"] as Locale[]; // add more RTL locales if needed
+      document.documentElement.dir = (rtlSite as string[]).includes(pageLocale) ? "rtl" : "ltr";
+    }
+  }, [pageLocale]);
 
   useEffect(() => {
     if (
@@ -624,7 +688,7 @@ export default function MultilingualKeyboard() {
             </div>
             <div>
               <h1 className="text-4xl md:text-5xl font-bold text-foreground text-balance">
-                Free Virtual Keyboard Online
+                {heroTitle[selectedLanguage] ?? heroTitle.en}
               </h1>
               <h2 className="text-xl text-primary font-medium mt-2">
                 Japanese • Russian • Hebrew • Arabic • 20+ Languages
@@ -633,14 +697,7 @@ export default function MultilingualKeyboard() {
           </div>
 
           <p className="text-muted-foreground text-balance max-w-3xl mx-auto text-lg leading-relaxed">
-            Type in any language with our free multilingual virtual keyboard.
-            Supports <strong>Japanese keyboard</strong>,{" "}
-            <strong>Russian keyboard</strong>, <strong>Hebrew keyboard</strong>,
-            and <strong>Arabic keyboard</strong>. Translate{" "}
-            <strong>English to Spanish</strong>,{" "}
-            <strong>Russian to English</strong>,{" "}
-            <strong>Greek to English</strong> with voice input and instant
-            translation.
+            {heroDescription[selectedLanguage] ?? heroDescription.en}
           </p>
 
           <div className="bg-muted/30 p-6 rounded-xl mt-8">
