@@ -1,14 +1,15 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { GeistSans } from "geist/font/sans"
-import { GeistMono } from "geist/font/mono"
-import { Analytics } from "@vercel/analytics/next"
-import { ThemeProvider } from "@/components/theme-provider"
-import { Suspense } from "react"
-import "./globals.css"
+import type React from "react";
+import type { Metadata } from "next";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
+import { Analytics } from "@vercel/analytics/next";
+import { ThemeProvider } from "@/components/theme-provider";
+import { Suspense } from "react";
+import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "KeyMundo - Multilingual Virtual Keyboard | Type in 20+ Languages Online",
+  title:
+    "KeyMundo - Multilingual Virtual Keyboard | Type in 20+ Languages Online",
   description:
     "Free online multilingual virtual keyboard supporting 20+ languages including Japanese keyboard, Russian keyboard, Arabic keyboard. Type, translate and convert text with voice input. English to Spanish, Russian to English translation tools.",
   keywords:
@@ -32,23 +33,31 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-}
+  icons: {
+    icon: "/icon.ico", // 👈 added favicon
+  },
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
         <Suspense fallback={<div>Loading...</div>}>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
             {children}
           </ThemeProvider>
         </Suspense>
         <Analytics />
       </body>
     </html>
-  )
+  );
 }
