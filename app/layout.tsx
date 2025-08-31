@@ -21,6 +21,9 @@ export const metadata: Metadata = {
   applicationName: "KeyMundo Virtual Keyboard",
   referrer: "origin-when-cross-origin",
   metadataBase: new URL("https://keymundo.com"),
+  icons: {
+    icon: "/icon.ico",
+  },
   alternates: {
     canonical: "https://keymundo.com",
     languages: {
