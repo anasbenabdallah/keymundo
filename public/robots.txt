@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+
+# High-priority pages
+Allow: /japanese-keyboard
+Allow: /russian-keyboard
+Allow: /hebrew-keyboard
+Allow: /arabic-keyboard
+Allow: /english-to-spanish
+Allow: /spanish-to-english
+Allow: /russian-to-english
+Allow: /greek-to-english
+
+# Sitemap location
+Sitemap: https://keymundo.com/sitemap.xml
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1

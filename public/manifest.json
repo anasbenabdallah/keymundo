@@ -1,0 +1,27 @@
+{
+  "name": "KeyMundo - Free Virtual Keyboard",
+  "short_name": "KeyMundo",
+  "description": "Free multilingual virtual keyboard with voice input and translation for 20+ languages including Japanese, Russian, Hebrew, Arabic",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities", "education"],
+  "lang": "en",
+  "dir": "ltr"
+}
