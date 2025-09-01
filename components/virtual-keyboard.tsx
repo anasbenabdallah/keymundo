@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 interface VirtualKeyboardProps {
   language: string;
   onKeyPress: (key: string) => void;
+  labels?: { space?: string; enter?: string; backspace?: string };
 }
 
 // Minimal, readable layouts. You can expand with shift/alt layers later.
@@ -122,8 +123,11 @@ const keyboardLayouts: Record<string, string[][]> = {
   ],
 };
 
-export function VirtualKeyboard({ language, onKeyPress }: VirtualKeyboardProps) {
+export function VirtualKeyboard({ language, onKeyPress, labels }: VirtualKeyboardProps) {
   const layout = keyboardLayouts[language] || keyboardLayouts.en;
+  const spaceLabel = labels?.space ?? "Space";
+  const enterLabel = labels?.enter ?? "Enter";
+  const backspaceLabel = labels?.backspace ?? "Backspace";
 
   return (
     <div className="space-y-3">
@@ -150,7 +154,7 @@ export function VirtualKeyboard({ language, onKeyPress }: VirtualKeyboardProps) 
           className="px-6 h-12 bg-card hover:bg-primary hover:text-primary-foreground border-2 hover:border-primary transition-all duration-200 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md font-medium"
           onClick={() => onKeyPress("Space")}
         >
-          Space
+          {spaceLabel}
         </Button>
         <Button
           variant="outline"
@@ -158,7 +162,7 @@ export function VirtualKeyboard({ language, onKeyPress }: VirtualKeyboardProps) 
           className="px-6 h-12 bg-card hover:bg-primary hover:text-primary-foreground border-2 hover:border-primary transition-all duration-200 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md font-medium"
           onClick={() => onKeyPress("Enter")}
         >
-          Enter
+          {enterLabel}
         </Button>
         <Button
           variant="outline"
@@ -166,10 +170,9 @@ export function VirtualKeyboard({ language, onKeyPress }: VirtualKeyboardProps) 
           className="px-6 h-12 bg-card hover:bg-destructive hover:text-destructive-foreground border-2 hover:border-destructive transition-all duration-200 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md font-medium"
           onClick={() => onKeyPress("Backspace")}
         >
-          Backspace
+          {backspaceLabel}
         </Button>
       </div>
     </div>
   );
 }
-

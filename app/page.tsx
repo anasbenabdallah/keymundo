@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useParams, usePathname, useSearchParams } from "next/navigation";
+import { useParams, usePathname, useSearchParams, useRouter } from "next/navigation";
 import {
   SUPPORTED_LOCALES,
-  CATEGORY_BY_LOCALE,
-  localeFromCategorySegment,
+  detectLocale,
   codeFromSlug,
   type Locale,
+  KEYBOARD_SLUGS,
+  CATEGORY_BY_LOCALE,
 } from "@/lib/i18n-routes";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,22 +37,90 @@ import {
 import { VirtualKeyboard } from "@/components/virtual-keyboard";
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "next-themes";
-// Minimal i18n for SEO-facing hero copy
-const heroTitle: Record<string, string> = {
-  en: "Free Virtual Keyboard Online",
-  ar: "لوحة مفاتيح افتراضية مجانية عبر الإنترنت",
-  fr: "Clavier virtuel gratuit en ligne",
-  ja: "無料バーチャルキーボード",
-  ru: "Бесплатная виртуальная клавиатура онлайн",
-  he: "מקלדת וירטואלית חינמית אונליין",
-};
-const heroDescription: Record<string, string> = {
-  en: "Type in any language with our free multilingual virtual keyboard. Supports Japanese keyboard, Russian keyboard, Hebrew keyboard, and Arabic keyboard. Translate English to Spanish, Russian to English, Greek to English with voice input and instant translation.",
-  ar: "اكتب بأي لغة باستخدام لوحة المفاتيح الافتراضية متعددة اللغات مجانًا. تدعم لوحة المفاتيح اليابانية والروسية والعبرية والعربية. ترجم من الإنجليزية إلى الإسبانية، ومن الروسية إلى الإنجليزية، ومن اليونانية إلى الإنجليزية مع الإدخال الصوتي والترجمة الفورية.",
-  fr: "Saisissez dans n'importe quelle langue avec notre clavier virtuel multilingue gratuit. Prend en charge les claviers japonais, russe, hébreu et arabe. Traduisez l'anglais vers l'espagnol, le russe vers l'anglais, le grec vers l'anglais avec saisie vocale et traduction instantanée.",
-  ja: "無料の多言語バーチャルキーボードで好きな言語を入力できます。日本語、ロシア語、ヘブライ語、アラビア語のキーボードに対応。音声入力と即時翻訳で英語↔スペイン語、ロシア語→英語、ギリシャ語→英語の翻訳も可能。",
-  ru: "Печатайте на любом языке с нашей бесплатной многоязычной виртуальной клавиатурой. Поддерживаются японская, русская, иврит и арабская раскладки. Переводите английский↔испанский, русский→английский, греческий→английский с голосовым вводом и мгновенным переводом.",
-  he: "הקלידו בכל שפה עם המקלדת הווירטואלית הרב־לשונית החינמית שלנו. תומכת במקלדות יפנית, רוסית, עברית וערבית. תרגמו מאנגלית לספרדית, מרוסית לאנגלית ומיוונית לאנגלית עם קלדנות קולית ותרגום מיידי.",
+// UI i18n — minimal dictionary (en, fr, ar). Fallback to en.
+type UILocale = "en" | "fr" | "ar";
+const ui: Record<UILocale, any> = {
+  en: {
+    heroTitle: "Free Virtual Keyboard Online",
+    heroDescription:
+      "Type in any language with our free multilingual virtual keyboard. Supports Japanese, Russian, Hebrew, and Arabic. Voice input and instant translation.",
+    chooseInput: "Choose Input Language",
+    translateTo: "Translate to:",
+    textOutput: "Text Output",
+    listening: "Listening...",
+    translation: (name: string) => `Translation (${name})`,
+    chars: "Characters",
+    words: "Words",
+    language: "Language",
+    virtualKeyboard: "Virtual Keyboard",
+    popularTranslations: "Popular Translations",
+    mostPopularKeyboards: "Most Popular Virtual Keyboards",
+    featTyping: "Instant Typing",
+    featTypingDesc: "20+ languages supported",
+    featVoice: "Voice Input",
+    featVoiceDesc: "Speech-to-text in any language",
+    featTranslate: "Translation",
+    featTranslateDesc: "Instant text translation",
+    featSecure: "Secure & Free",
+    featSecureDesc: "No registration required",
+    keySpace: "Space",
+    keyEnter: "Enter",
+    keyBackspace: "Backspace",
+  },
+  fr: {
+    heroTitle: "Clavier virtuel gratuit en ligne",
+    heroDescription:
+      "Saisissez dans n'importe quelle langue avec notre clavier virtuel multilingue gratuit. Prend en charge le japonais, le russe, l'hébreu et l'arabe. Saisie vocale et traduction instantanée.",
+    chooseInput: "Choisir la langue d'entrée",
+    translateTo: "Traduire vers :",
+    textOutput: "Texte de sortie",
+    listening: "Écoute en cours...",
+    translation: (name: string) => `Traduction (${name})`,
+    chars: "Caractères",
+    words: "Mots",
+    language: "Langue",
+    virtualKeyboard: "Clavier virtuel",
+    popularTranslations: "Traductions populaires",
+    mostPopularKeyboards: "Claviers virtuels populaires",
+    featTyping: "Saisie instantanée",
+    featTypingDesc: "Plus de 20 langues prises en charge",
+    featVoice: "Saisie vocale",
+    featVoiceDesc: "Reconnaissance vocale multilingue",
+    featTranslate: "Traduction",
+    featTranslateDesc: "Traduction de texte instantanée",
+    featSecure: "Sécurisé et gratuit",
+    featSecureDesc: "Aucune inscription requise",
+    keySpace: "Espace",
+    keyEnter: "Entrée",
+    keyBackspace: "Effacer",
+  },
+  ar: {
+    heroTitle: "لوحة مفاتيح افتراضية مجانية عبر الإنترنت",
+    heroDescription:
+      "اكتب بأي لغة باستخدام لوحة المفاتيح الافتراضية متعددة اللغات مجانًا. تدعم اليابانية والروسية والعبرية والعربية مع إدخال صوتي وترجمة فورية.",
+    chooseInput: "اختر لغة الإدخال",
+    translateTo: "ترجمة إلى:",
+    textOutput: "النص الناتج",
+    listening: "يتم الاستماع...",
+    translation: (name: string) => `الترجمة (${name})`,
+    chars: "عدد الأحرف",
+    words: "عدد الكلمات",
+    language: "اللغة",
+    virtualKeyboard: "لوحة المفاتيح الافتراضية",
+    popularTranslations: "ترجمات شائعة",
+    mostPopularKeyboards: "أشهر لوحات المفاتيح",
+    featTyping: "كتابة فورية",
+    featTypingDesc: "يدعم أكثر من 20 لغة",
+    featVoice: "إدخال صوتي",
+    featVoiceDesc: "تحويل الكلام إلى نص",
+    featTranslate: "الترجمة",
+    featTranslateDesc: "ترجمة نصية فورية",
+    featSecure: "آمن ومجاني",
+    featSecureDesc: "لا حاجة للتسجيل",
+    keySpace: "مسافة",
+    keyEnter: "إدخال",
+    keyBackspace: "حذف",
+  },
 };
 
 const languages = [
@@ -224,6 +293,7 @@ export default function MultilingualKeyboard() {
   const params = useParams();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   // Determine site locale + initial keyboard from new descriptive URLs or legacy /:lang
   let initialLocale: Locale = "en";
@@ -231,12 +301,10 @@ export default function MultilingualKeyboard() {
   if (pathname) {
     const parts = pathname.split("/").filter(Boolean);
     if (parts.length >= 2) {
-      const maybeLocale = localeFromCategorySegment(parts[0]);
-      if (maybeLocale) {
-        initialLocale = maybeLocale;
-        const code = codeFromSlug(maybeLocale, parts[1]);
-        if (code) initialKbd = code;
-      }
+      const inferred = detectLocale(parts[0], parts[1]);
+      initialLocale = inferred as Locale;
+      const code = codeFromSlug(inferred as Locale, parts[1]);
+      if (code) initialKbd = code;
     }
   }
   // Legacy /:lang fallback
@@ -252,6 +320,16 @@ export default function MultilingualKeyboard() {
 
   const [selectedLanguage, setSelectedLanguage] = useState(initialKbd);
   const [pageLocale, setPageLocale] = useState<Locale>(initialLocale);
+  const U = (ui[pageLocale as UILocale] || ui.en) as typeof ui.en;
+
+  // Sync URL slug with selected input language for current site locale (when we have a slug mapping)
+  useEffect(() => {
+    if (!pathname) return;
+    const slug = (KEYBOARD_SLUGS as any)[selectedLanguage]?.[pageLocale];
+    if (!slug) return;
+    const desired = `/${CATEGORY_BY_LOCALE[pageLocale]}/${slug}`;
+    if (desired !== pathname) router.replace(desired);
+  }, [selectedLanguage, pageLocale, pathname, router]);
   const [text, setText] = useState("");
   const [translatedText, setTranslatedText] = useState("");
   const [targetLanguage, setTargetLanguage] = useState("es");
@@ -259,6 +337,7 @@ export default function MultilingualKeyboard() {
   const [isVoiceSupported, setIsVoiceSupported] = useState(false);
   const [showTranslation, setShowTranslation] = useState(false);
   const recognitionRef = useRef<any>(null);
+  const topSectionRef = useRef<HTMLDivElement | null>(null);
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
 
@@ -270,6 +349,13 @@ export default function MultilingualKeyboard() {
       document.documentElement.dir = (rtlSite as string[]).includes(pageLocale) ? "rtl" : "ltr";
     }
   }, [pageLocale]);
+
+  useEffect(() => {
+    // On first load, bring the typing area into view so keyboard is visible
+    if (topSectionRef.current) {
+      topSectionRef.current.scrollIntoView({ behavior: "auto", block: "start" as ScrollLogicalPosition });
+    }
+  }, []);
 
   useEffect(() => {
     if (
@@ -688,7 +774,7 @@ export default function MultilingualKeyboard() {
             </div>
             <div>
               <h1 className="text-4xl md:text-5xl font-bold text-foreground text-balance">
-                {heroTitle[selectedLanguage] ?? heroTitle.en}
+                {U.heroTitle}
               </h1>
               <h2 className="text-xl text-primary font-medium mt-2">
                 Japanese • Russian • Hebrew • Arabic • 20+ Languages
@@ -697,7 +783,7 @@ export default function MultilingualKeyboard() {
           </div>
 
           <p className="text-muted-foreground text-balance max-w-3xl mx-auto text-lg leading-relaxed">
-            {heroDescription[selectedLanguage] ?? heroDescription.en}
+            {U.heroDescription}
           </p>
 
           <div className="bg-muted/30 p-6 rounded-xl mt-8">
@@ -768,6 +854,7 @@ export default function MultilingualKeyboard() {
           </div>
         </section>
 
+        <div id="workbench" ref={topSectionRef}>
         <Card className="p-6 shadow-lg border-2 hover:border-primary/20 transition-colors">
           <div className="flex flex-col lg:flex-row items-start lg:items-center gap-6">
             <div className="flex items-center gap-3">
@@ -778,7 +865,7 @@ export default function MultilingualKeyboard() {
                 htmlFor="language-select"
                 className="text-lg font-semibold text-foreground"
               >
-                Choose Input Language
+                {U.chooseInput}
               </label>
             </div>
             <div className="flex flex-col sm:flex-row gap-4 flex-1">
@@ -825,9 +912,7 @@ export default function MultilingualKeyboard() {
               </Select>
 
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
-                  Translate to:
-                </span>
+                <span className="text-sm text-muted-foreground">{U.translateTo}</span>
                 <Select
                   value={targetLanguage}
                   onValueChange={setTargetLanguage}
@@ -870,7 +955,7 @@ export default function MultilingualKeyboard() {
                     <div className="p-2 rounded-lg bg-primary/10">
                       <Copy className="h-5 w-5 text-primary" />
                     </div>
-                    Text Output
+                    {U.textOutput}
                   </h2>
                   <div className="flex flex-wrap gap-3">
                     <Button
@@ -960,7 +1045,7 @@ export default function MultilingualKeyboard() {
                     {isListening && (
                       <div className="absolute top-8 right-4 flex items-center gap-2 bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">
                         <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-                        Listening...
+                        {U.listening}
                       </div>
                     )}
                   </div>
@@ -968,7 +1053,7 @@ export default function MultilingualKeyboard() {
                   {showTranslation && (
                     <div className="relative">
                       <label className="text-sm font-medium text-muted-foreground mb-2 block">
-                        Translation ({targetLang?.name})
+                        {U.translation(targetLang?.name || "")}
                       </label>
                       <textarea
                         value={translatedText}
@@ -987,20 +1072,20 @@ export default function MultilingualKeyboard() {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-sm text-muted-foreground bg-muted/30 p-3 rounded-lg">
                   <div className="flex gap-6">
                     <span>
-                      Characters:{" "}
+                      {U.chars}:{" "}
                       <span className="font-medium text-foreground">
                         {text.length}
                       </span>
                     </span>
                     <span>
-                      Words:{" "}
+                      {U.words}:{" "}
                       <span className="font-medium text-foreground">
                         {text.trim() ? text.trim().split(/\s+/).length : 0}
                       </span>
                     </span>
                   </div>
                   <div className="text-xs">
-                    Language:{" "}
+                    {U.language}:{" "}
                     <span className="font-medium text-foreground">
                       {selectedLang?.name}
                     </span>
@@ -1015,11 +1100,12 @@ export default function MultilingualKeyboard() {
                   <div className="p-3 rounded-full bg-primary/10">
                     <span className="text-lg">{selectedLang?.flag}</span>
                   </div>
-                  Virtual Keyboard - {selectedLang?.name}
+                  {U.virtualKeyboard} - {selectedLang?.name}
                 </h2>
                 <VirtualKeyboard
                   language={selectedLanguage}
                   onKeyPress={handleKeyPress}
+                  labels={{ space: U.keySpace, enter: U.keyEnter, backspace: U.keyBackspace }}
                 />
               </div>
             </Card>
@@ -1029,7 +1115,7 @@ export default function MultilingualKeyboard() {
             <Card className="p-4 shadow-lg border-2 hover:border-primary/20 transition-colors h-fit">
               <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
                 <Clock className="h-4 w-4 text-primary" />
-                Popular Translations
+                {U.popularTranslations}
               </h2>
               <div className="grid grid-cols-1 gap-2">
                 {popularTranslations.slice(0, 3).map((trans, index) => (
@@ -1079,6 +1165,7 @@ export default function MultilingualKeyboard() {
               </div>
             </Card>
           </div>
+        </div>
         </div>
 
         <section className="bg-card/30 p-8 rounded-xl border space-y-6">

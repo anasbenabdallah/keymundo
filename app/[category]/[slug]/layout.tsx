@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import {
   SUPPORTED_LOCALES,
-  CATEGORY_BY_LOCALE,
   KEYBOARD_SLUGS,
-  localeFromCategorySegment,
+  detectLocale,
   codeFromSlug,
   pathFor,
 } from "@/lib/i18n-routes";
@@ -13,7 +12,7 @@ type Params = { category: string; slug: string };
 export async function generateMetadata(props: any): Promise<Metadata> {
   const params = props?.params as Params;
   const base = process.env.NEXT_PUBLIC_SITE_URL || "https://keymundo.com";
-  const locale = localeFromCategorySegment(params.category);
+  const locale = detectLocale(params.category, params.slug);
   if (!locale) return {};
 
   const code = codeFromSlug(locale, params.slug);
