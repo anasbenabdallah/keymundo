@@ -1,27 +1,7 @@
 export type Locale = "en" | "fr" | "ar";
 export type KeyboardCode =
-  | "en"
-  | "ja"
-  | "ru"
-  | "es"
-  | "ar"
-  | "he"
-  | "el"
-  | "pt"
-  | "zh"
-  | "hi"
-  | "fr"
-  | "bn"
-  | "id"
-  | "ur"
-  | "de"
-  | "sw"
-  | "mr"
-  | "te"
-  | "tr"
-  | "ta"
-  | "vi"
-  | "ko";
+  | "en" | "ja" | "ru" | "es" | "ar" | "he" | "el" | "pt" | "zh" | "hi"
+  | "fr" | "bn" | "id" | "ur" | "de" | "sw" | "mr" | "te" | "tr" | "ta" | "vi" | "ko";
 
 export const SUPPORTED_LOCALES: Locale[] = ["en", "fr", "ar"];
 
@@ -29,7 +9,7 @@ export const SUPPORTED_LOCALES: Locale[] = ["en", "fr", "ar"];
 export const CATEGORY_BY_LOCALE: Record<Locale, string> = {
   en: "keyboard",
   fr: "clavier",
-  // Arabic reuses "clavier" per your requirement. This is ambiguous, so we also detect locale by slug.
+  // Arabic reuses "clavier" per your requirement. Locale is disambiguated by slug.
   ar: "clavier",
 };
 

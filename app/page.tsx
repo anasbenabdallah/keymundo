@@ -38,12 +38,13 @@ import { VirtualKeyboard } from "@/components/virtual-keyboard";
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "next-themes";
 // UI i18n — minimal dictionary (en, fr, ar). Fallback to en.
-type UILocale = "en" | "fr" | "ar";
+type UILocale = "en" | "fr" | "ar" | "ru";
 const ui: Record<UILocale, any> = {
-  en: {
-    heroTitle: "Free Virtual Keyboard Online",
-    heroDescription:
-      "Type in any language with our free multilingual virtual keyboard. Supports Japanese, Russian, Hebrew, and Arabic. Voice input and instant translation.",
+    en: {
+      heroTitle: "Free Virtual Keyboard Online",
+      heroSub: "{U.heroSub}",
+      heroDescription:
+        "Type in any language with our free multilingual virtual keyboard. Supports Japanese, Russian, Hebrew, and Arabic. Voice input and instant translation.",
     chooseInput: "Choose Input Language",
     translateTo: "Translate to:",
     textOutput: "Text Output",
@@ -55,6 +56,7 @@ const ui: Record<UILocale, any> = {
     virtualKeyboard: "Virtual Keyboard",
     popularTranslations: "Popular Translations",
     mostPopularKeyboards: "Most Popular Virtual Keyboards",
+    whyChoose: "Why Choose KeyMundo Virtual Keyboard?",
     featTyping: "Instant Typing",
     featTypingDesc: "20+ languages supported",
     featVoice: "Voice Input",
@@ -67,10 +69,11 @@ const ui: Record<UILocale, any> = {
     keyEnter: "Enter",
     keyBackspace: "Backspace",
   },
-  fr: {
-    heroTitle: "Clavier virtuel gratuit en ligne",
-    heroDescription:
-      "Saisissez dans n'importe quelle langue avec notre clavier virtuel multilingue gratuit. Prend en charge le japonais, le russe, l'hébreu et l'arabe. Saisie vocale et traduction instantanée.",
+    fr: {
+      heroTitle: "Clavier virtuel gratuit en ligne",
+      heroSub: "Japonais • Russe • Hébreu • Arabe • 20+ langues",
+      heroDescription:
+        "Saisissez dans n'importe quelle langue avec notre clavier virtuel multilingue gratuit. Prend en charge le japonais, le russe, l'hébreu et l'arabe. Saisie vocale et traduction instantanée.",
     chooseInput: "Choisir la langue d'entrée",
     translateTo: "Traduire vers :",
     textOutput: "Texte de sortie",
@@ -82,6 +85,7 @@ const ui: Record<UILocale, any> = {
     virtualKeyboard: "Clavier virtuel",
     popularTranslations: "Traductions populaires",
     mostPopularKeyboards: "Claviers virtuels populaires",
+    whyChoose: "Pourquoi choisir le clavier virtuel KeyMundo ?",
     featTyping: "Saisie instantanée",
     featTypingDesc: "Plus de 20 langues prises en charge",
     featVoice: "Saisie vocale",
@@ -95,9 +99,10 @@ const ui: Record<UILocale, any> = {
     keyBackspace: "Effacer",
   },
   ar: {
-    heroTitle: "لوحة مفاتيح افتراضية مجانية عبر الإنترنت",
-    heroDescription:
-      "اكتب بأي لغة باستخدام لوحة المفاتيح الافتراضية متعددة اللغات مجانًا. تدعم اليابانية والروسية والعبرية والعربية مع إدخال صوتي وترجمة فورية.",
+      heroTitle: "لوحة مفاتيح افتراضية مجانية عبر الإنترنت",
+      heroSub: "اليابانية • الروسية • العبرية • العربية • أكثر من 20 لغة",
+      heroDescription:
+        "اكتب بأي لغة باستخدام لوحة المفاتيح الافتراضية متعددة اللغات مجانًا. تدعم اليابانية والروسية والعبرية والعربية مع إدخال صوتي وترجمة فورية.",
     chooseInput: "اختر لغة الإدخال",
     translateTo: "ترجمة إلى:",
     textOutput: "النص الناتج",
@@ -109,6 +114,7 @@ const ui: Record<UILocale, any> = {
     virtualKeyboard: "لوحة المفاتيح الافتراضية",
     popularTranslations: "ترجمات شائعة",
     mostPopularKeyboards: "أشهر لوحات المفاتيح",
+    whyChoose: "لماذا تختار لوحة مفاتيح KeyMundo؟",
     featTyping: "كتابة فورية",
     featTypingDesc: "يدعم أكثر من 20 لغة",
     featVoice: "إدخال صوتي",
@@ -120,6 +126,35 @@ const ui: Record<UILocale, any> = {
     keySpace: "مسافة",
     keyEnter: "إدخال",
     keyBackspace: "حذف",
+  },
+  ru: {
+    heroTitle: "Бесплатная виртуальная клавиатура онлайн",
+    heroSub: "Японская • Русская • Иврит • Арабская • 20+ языков",
+    heroDescription:
+      "Печатайте на любом языке с нашей бесплатной многоязычной виртуальной клавиатурой. Поддержка японской, русской, ивритской и арабской раскладок. Голосовой ввод и мгновенный перевод.",
+    chooseInput: "Выберите язык ввода",
+    translateTo: "Перевести на:",
+    textOutput: "Выходной текст",
+    listening: "Прослушивание...",
+    translation: (name: string) => `Перевод (${name})`,
+    chars: "Символы",
+    words: "Слова",
+    language: "Язык",
+    virtualKeyboard: "Виртуальная клавиатура",
+    popularTranslations: "Популярные переводы",
+    mostPopularKeyboards: "Популярные виртуальные клавиатуры",
+    whyChoose: "Почему выбрать виртуальную клавиатуру KeyMundo?",
+    featTyping: "Мгновенный набор",
+    featTypingDesc: "Поддержка более 20 языков",
+    featVoice: "Голосовой ввод",
+    featVoiceDesc: "Распознавание речи",
+    featTranslate: "Перевод",
+    featTranslateDesc: "Мгновенный перевод текста",
+    featSecure: "Безопасно и бесплатно",
+    featSecureDesc: "Регистрация не требуется",
+    keySpace: "Пробел",
+    keyEnter: "Ввод",
+    keyBackspace: "Удалить",
   },
 };
 
@@ -320,14 +355,120 @@ export default function MultilingualKeyboard() {
 
   const [selectedLanguage, setSelectedLanguage] = useState(initialKbd);
   const [pageLocale, setPageLocale] = useState<Locale>(initialLocale);
-  const U = (ui[pageLocale as UILocale] || ui.en) as typeof ui.en;
+  const [dynamicUi, setDynamicUi] = useState<Record<string, any>>({});
+  const U = (ui[pageLocale as UILocale] || dynamicUi[pageLocale] || ui.en) as typeof ui.en;
+  const didInitFromRoute = useRef(false);
+
+  // If the selected input language is one of our site locales, switch the site UI locale accordingly
+  useEffect(() => {
+    // Always switch UI locale to the selected keyboard language;
+    // dynamic translation will fill strings when not statically available.
+    setPageLocale(selectedLanguage as Locale);
+  }, [selectedLanguage]);
+
+  // Align state from the initial route only once on first mount
+  useEffect(() => {
+    if (didInitFromRoute.current) return;
+    if (!pathname) return;
+    const parts = pathname.split("/").filter(Boolean);
+    if (parts.length < 2) return;
+    const currentLocale = detectLocale(parts[0], parts[1]) as Locale;
+    const currentCode = codeFromSlug(currentLocale, parts[1]);
+    if (currentCode) {
+      setSelectedLanguage(currentCode);
+      setPageLocale(currentLocale);
+    }
+    didInitFromRoute.current = true;
+  }, [pathname]);
+
+  // Dynamic UI translation fallback for locales without static strings
+  useEffect(() => {
+    const staticHas = !!ui[pageLocale as UILocale];
+    if (staticHas || pageLocale === "en") return;
+
+    const cacheKey = `ui:locale:${pageLocale}`;
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        setDynamicUi((prev) => ({ ...prev, [pageLocale]: JSON.parse(cached) }));
+        return;
+      }
+    } catch {}
+
+    const to = pageLocale; // two-letter code matches selectedLanguage codes we use
+    const base = ui.en;
+    const keys: (keyof typeof base)[] = [
+      "heroTitle",
+      "heroSub",
+      "heroDescription",
+      "chooseInput",
+      "translateTo",
+      "textOutput",
+      "listening",
+      "chars",
+      "words",
+      "language",
+      "virtualKeyboard",
+      "popularTranslations",
+      "mostPopularKeyboards",
+      "whyChoose",
+      "featTyping",
+      "featTypingDesc",
+      "featVoice",
+      "featVoiceDesc",
+      "featTranslate",
+      "featTranslateDesc",
+      "featSecure",
+      "featSecureDesc",
+      "keySpace",
+      "keyEnter",
+      "keyBackspace",
+    ];
+
+    const translateOne = async (text: string): Promise<string> => {
+      try {
+        const resp = await fetch(
+          `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${to}`
+        );
+        const data = await resp.json();
+        return data?.responseData?.translatedText || text;
+      } catch {
+        return text;
+      }
+    };
+
+    (async () => {
+      const out: any = {};
+      for (const k of keys) {
+        out[k] = await translateOne((base as any)[k]);
+      }
+      // function field
+      const translatedWord = await translateOne("Translation");
+      out.translation = (name: string) => `${translatedWord} (${name})`;
+      setDynamicUi((prev) => ({ ...prev, [pageLocale]: out }));
+      try { localStorage.setItem(cacheKey, JSON.stringify(out)); } catch {}
+    })();
+  }, [pageLocale]);
 
   // Sync URL slug with selected input language for current site locale (when we have a slug mapping)
   useEffect(() => {
     if (!pathname) return;
-    const slug = (KEYBOARD_SLUGS as any)[selectedLanguage]?.[pageLocale];
-    if (!slug) return;
-    const desired = `/${CATEGORY_BY_LOCALE[pageLocale]}/${slug}`;
+    const parts = pathname.split("/").filter(Boolean);
+    if (parts.length < 2) return;
+    const currentLocale = detectLocale(parts[0], parts[1]) as Locale;
+    const currentCode = codeFromSlug(currentLocale, parts[1]);
+
+    // If URL already represents the selected language for its locale, don't rewrite.
+    if (currentCode === selectedLanguage) return;
+
+    // Choose locale for URL: keep current site locale when pageLocale isn't a supported site locale
+    const localeForUrl = (SUPPORTED_LOCALES as readonly string[]).includes(pageLocale as any)
+      ? (pageLocale as Locale)
+      : currentLocale;
+    const slug = (KEYBOARD_SLUGS as any)[selectedLanguage]?.[localeForUrl];
+    const category = (CATEGORY_BY_LOCALE as any)[localeForUrl];
+    if (!slug || !category) return;
+    const desired = `/${category}/${slug}`;
     if (desired !== pathname) router.replace(desired);
   }, [selectedLanguage, pageLocale, pathname, router]);
   const [text, setText] = useState("");
@@ -538,23 +679,30 @@ export default function MultilingualKeyboard() {
     });
   };
 
-  const translateText = async () => {
+  const translateText = async (opts?: { silent?: boolean }) => {
+    const silent = !!opts?.silent;
     if (!text.trim()) {
-      toast({
-        title: "No text to translate",
-        description: "Please type some text first.",
-        variant: "destructive",
-      });
+      if (!silent) {
+        toast({
+          title: "No text to translate",
+          description: "Please type some text first.",
+          variant: "destructive",
+        });
+      }
+      setShowTranslation(false);
+      setTranslatedText("");
       return;
     }
 
     setShowTranslation(true);
 
     try {
-      toast({
-        title: "Translating...",
-        description: "Please wait while we translate your text.",
-      });
+      if (!silent) {
+        toast({
+          title: "Translating...",
+          description: "Please wait while we translate your text.",
+        });
+      }
 
       const response = await fetch(
         `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
@@ -576,12 +724,14 @@ export default function MultilingualKeyboard() {
 
       if (data.responseData && data.responseData.translatedText) {
         setTranslatedText(data.responseData.translatedText);
-        toast({
-          title: "Translation complete",
-          description: `Translated from ${selectedLang?.name} to ${
-            languages.find((l) => l.code === targetLanguage)?.name
-          }`,
-        });
+        if (!silent) {
+          toast({
+            title: "Translation complete",
+            description: `Translated from ${selectedLang?.name} to ${
+              languages.find((l) => l.code === targetLanguage)?.name
+            }`,
+          });
+        }
       } else {
         throw new Error("Translation failed");
       }
@@ -714,32 +864,40 @@ export default function MultilingualKeyboard() {
 
         if (translated) {
           setTranslatedText(translated);
-          toast({
-            title: "Translation complete",
-            description: "Using offline translation service",
-          });
+          if (!silent) {
+            toast({
+              title: "Translation complete",
+              description: "Using offline translation service",
+            });
+          }
         } else {
           setTranslatedText(`Translation not available for: "${text}"`);
-          toast({
-            title: "Translation unavailable",
-            description:
-              "This phrase is not in our offline dictionary. Please try a simpler phrase.",
-            variant: "destructive",
-          });
+          if (!silent) {
+            toast({
+              title: "Translation unavailable",
+              description:
+                "This phrase is not in our offline dictionary. Please try a simpler phrase.",
+              variant: "destructive",
+            });
+          }
         }
       } else {
         setTranslatedText(
           `Translation from ${selectedLang?.name} to ${targetLang?.name} not supported offline`
         );
-        toast({
-          title: "Translation service unavailable",
-          description:
-            "This language pair requires internet connection. Please check your connection.",
-          variant: "destructive",
-        });
+        if (!silent) {
+          toast({
+            title: "Translation service unavailable",
+            description:
+              "This language pair requires internet connection. Please check your connection.",
+            variant: "destructive",
+          });
+        }
       }
     }
   };
+
+  // Note: Translation runs only when the user clicks the Translate button.
 
   const selectedLang = languages.find((lang) => lang.code === selectedLanguage);
   const targetLang = languages.find((lang) => lang.code === targetLanguage);
@@ -777,7 +935,7 @@ export default function MultilingualKeyboard() {
                 {U.heroTitle}
               </h1>
               <h2 className="text-xl text-primary font-medium mt-2">
-                Japanese • Russian • Hebrew • Arabic • 20+ Languages
+                {U.heroSub}
               </h2>
             </div>
           </div>
@@ -787,9 +945,7 @@ export default function MultilingualKeyboard() {
           </p>
 
           <div className="bg-muted/30 p-6 rounded-xl mt-8">
-            <h3 className="text-lg font-semibold mb-4">
-              Most Popular Virtual Keyboards
-            </h3>
+            <h3 className="text-lg font-semibold mb-4">{U.mostPopularKeyboards}</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div className="p-3 bg-card rounded-lg border">
                 <strong>Japanese Keyboard</strong>
@@ -983,7 +1139,7 @@ export default function MultilingualKeyboard() {
                       Speak
                     </Button>
                     <Button
-                      onClick={translateText}
+                      onClick={() => translateText()}
                       disabled={!text.trim()}
                       variant="outline"
                       size="default"
@@ -1169,9 +1325,7 @@ export default function MultilingualKeyboard() {
         </div>
 
         <section className="bg-card/30 p-8 rounded-xl border space-y-6">
-          <h2 className="text-2xl font-bold text-center mb-6">
-            Why Choose KeyMundo Virtual Keyboard?
-          </h2>
+          <h2 className="text-2xl font-bold text-center mb-6">{U.whyChoose}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="text-center space-y-3">
               <div className="p-3 rounded-full bg-primary/10 w-fit mx-auto">

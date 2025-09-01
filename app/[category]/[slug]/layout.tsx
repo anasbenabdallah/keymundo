@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import {
   SUPPORTED_LOCALES,
-  KEYBOARD_SLUGS,
   detectLocale,
   codeFromSlug,
   pathFor,
@@ -9,23 +8,20 @@ import {
 
 type Params = { category: string; slug: string };
 
-export async function generateMetadata(props: any): Promise<Metadata> {
-  const params = props?.params as Params;
+export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
+  const { category, slug } = await params;
   const base = process.env.NEXT_PUBLIC_SITE_URL || "https://keymundo.com";
-  const locale = detectLocale(params.category, params.slug);
+  const locale = detectLocale(category, slug);
   if (!locale) return {};
 
-  const code = codeFromSlug(locale, params.slug);
+  const code = codeFromSlug(locale, slug);
   if (!code) return {};
 
-  // Title/description derived from slugs for now
-  const title = `KeyMundo — ${params.slug} virtual keyboard`;
-  const description = `Type with the ${params.slug} keyboard. Multilingual, free, with voice input and instant translation.`;
+  const title = `KeyMundo — ${slug} virtual keyboard`;
+  const description = `Type with the ${slug} keyboard. Multilingual, free, with voice input and instant translation.`;
 
   const languages: Record<string, string> = {};
-  for (const l of SUPPORTED_LOCALES) {
-    languages[l] = `${base}${pathFor(code, l)}`;
-  }
+  for (const l of SUPPORTED_LOCALES) languages[l] = `${base}${pathFor(code, l)}`;
   languages["x-default"] = `${base}${pathFor(code, "en")}`;
 
   const canonical = `${base}${pathFor(code, locale)}`;
@@ -43,12 +39,7 @@ export async function generateMetadata(props: any): Promise<Metadata> {
       url: canonical,
       type: "website",
       images: [
-        {
-          url: "/og-image.jpg",
-          width: 1200,
-          height: 630,
-          alt: title,
-        },
+        { url: "/og-image.jpg", width: 1200, height: 630, alt: title },
       ],
     },
     twitter: {
@@ -63,3 +54,4 @@ export async function generateMetadata(props: any): Promise<Metadata> {
 export default function Layout({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
+
