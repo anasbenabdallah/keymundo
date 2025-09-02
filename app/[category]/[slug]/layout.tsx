@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   if (!code) return {};
 
   const title = `KeyMundo — ${slug} virtual keyboard`;
-  const description = `Type with the ${slug} keyboard. Multilingual, free, with voice input and instant translation.`;
+  const description = `Type with the ${slug} keyboard. Multilingual and free, with optional voice input.`;
 
   const languages: Record<string, string> = {};
   for (const l of SUPPORTED_LOCALES) languages[l] = `${base}${pathFor(code, l)}`;
@@ -54,4 +54,3 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 export default function Layout({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
-
